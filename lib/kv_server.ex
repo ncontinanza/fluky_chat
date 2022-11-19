@@ -12,7 +12,7 @@ defmodule KVServer do
     {:ok, socket} =
       :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])
     Logger.info("Accepting connections on port #{port}")
-    acl = ActiveClientsList.start()
+    acl = ActiveClients.start()
     loop_acceptor(socket, acl)
   end
 
@@ -20,7 +20,7 @@ defmodule KVServer do
     {:ok, client_socket} = :gen_tcp.accept(socket)
     {:ok, client_pid} = Task.Supervisor.start_child(KVServer.TaskSupervisor, fn -> serve(client_socket, acl) end)
     :ok = :gen_tcp.controlling_process(client_socket, client_pid)
-    acl |> ActiveClientsList.add_client(client_pid, client_socket)
+    acl |> ActiveClients.add_client(client_pid, client_socket)
     loop_acceptor(socket, acl)
   end
 
@@ -62,7 +62,7 @@ defp serve(socket, acl) do
       serve(socket, acl)
     {:error, :closed} ->
       my_pid = self()
-      ActiveClientsList.remove_client(acl, my_pid)
+      ActiveClients.remove_client(acl, my_pid)
     {:error, :enotconn} ->
       :ok
   end
@@ -70,7 +70,7 @@ defp serve(socket, acl) do
 end
 
   defp write_line(line, acl) do
-    for {pid, socket} <- ActiveClientsList.get_all_clients(acl) do
+    for {pid, socket} <- ActiveClients.get_all_clients(acl) do
       if pid != self() do
         :gen_tcp.send(socket, String.upcase(line))
       end
