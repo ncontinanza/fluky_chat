@@ -20,6 +20,8 @@ defmodule KVServer do
   defp loop_acceptor(socket, acl) do
     {:ok, client_socket} = :gen_tcp.accept(socket)
 
+    # create supervised process and give client the socket to be able to interact
+    # use serve function for se
     {:ok, client_pid} =
       Task.Supervisor.start_child(KVServer.TaskSupervisor, fn -> serve(client_socket, acl) end)
 
@@ -29,21 +31,24 @@ defmodule KVServer do
   end
 
   defp serve(socket, acl) do
+    # serve acts as a client handler
+    # receives message from client and sends it to the rest of clients
     case :gen_tcp.recv(socket, 0) do
       {:ok, data} ->
         write_line(data, acl)
         serve(socket, acl)
-
+      # if connection with client got closed, remove client
       {:error, :closed} ->
         my_pid = self()
         ActiveClients.remove_client(acl, my_pid)
-
+      #
       {:error, :enotconn} ->
         :ok
     end
   end
 
   defp write_line(line, acl) do
+    # obtain clients map from agent with macro and unpack pid and socket
     for {pid, socket} <- ActiveClients.get_all_clients(acl) do
       if pid != self() do
         :gen_tcp.send(socket, String.upcase(line))
