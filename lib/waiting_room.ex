@@ -16,6 +16,17 @@ defmodule WaitingRoom do
   end
 
   def dequeue_pair(%WaitingRoom{} = waiting_list) do
-    {WaitingRoom.dequeue(waiting_list), WaitingRoom.dequeue(waiting_list)}
+
+    pid_waiting_number = waiting_list
+      |> Map.get(:waiting_room_pid)
+      |> Agent.get(&Enum.count(&1))
+
+    if pid_waiting_number >= 2 do
+      {:ok, {dequeue(waiting_list), dequeue(waiting_list)}}
+    else
+      {:not_enough_clients}
+    end
+
   end
+
 end

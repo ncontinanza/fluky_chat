@@ -7,16 +7,13 @@ defmodule Shuffler do
     %Shuffler{shuffler_pid: pid}
   end
 
-  def shuffle(
-        %Shuffler{shuffler_pid: shuffler_pid} = shuffler,
-        active_clients
-      ) do
+  def shuffle(%Shuffler{shuffler_pid: shuffler_pid} = shuffler, active_clients) do
     cond do
       ActiveClients.empty?(active_clients) ->
         active_clients
 
       true ->
-        Agent.update(shuffler_pid, fn _ -> %{} end)
+        Agent.update(shuffler_pid, fn _state -> %{} end)
 
         ActiveClients.get_all_clients(active_clients)
         |> Map.keys()
