@@ -4,24 +4,30 @@ defmodule Shuffler do
 
   def start do
     {:ok, pid} = Agent.start_link(fn -> %{} end)
-    %Shuffler{ shuffler_pid: pid }
+    %Shuffler{shuffler_pid: pid}
   end
 
   def shuffle(
-    %Shuffler{ shuffler_pid: shuffler_pid } = shuffler,
-    active_clients
-    ) do
-    Agent.update(shuffler_pid, fn _ -> %{} end)
+        %Shuffler{shuffler_pid: shuffler_pid} = shuffler,
+        active_clients
+      ) do
+    cond do
+      ActiveClients.empty?(active_clients) ->
+        active_clients
 
-    ActiveClients.get_all_clients(active_clients)
-    |> Map.keys()
-    |> MapSet.new()
-    |> do_shuffle(shuffler)
+      true ->
+        Agent.update(shuffler_pid, fn _ -> %{} end)
 
+        ActiveClients.get_all_clients(active_clients)
+        |> Map.keys()
+        |> MapSet.new()
+        |> do_shuffle(shuffler)
+    end
   end
 
-
   defp do_shuffle(pid_set, %Shuffler{shuffler_pid: shuffler_pid} = shuffler) do
+    IO.inspect(pid_set, label: "PID SET: ")
+
     if Enum.empty?(pid_set) do
       :ok
     else
@@ -39,5 +45,4 @@ defmodule Shuffler do
     Agent.update(shuffler_pid, &Map.put(&1, pid_x, pid_y))
     Agent.update(shuffler_pid, &Map.put(&1, pid_y, pid_x))
   end
-
 end
