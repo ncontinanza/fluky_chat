@@ -3,6 +3,9 @@ defmodule ActiveClients do
   defstruct [:acl_pid]
 
   def start do
+    # agents are processes for mantaining data (useful for "mutability")
+    # the agent (process) will control data and its changes
+
     {:ok, pid} = Agent.start_link(fn -> %{} end)
     %ActiveClients{acl_pid: pid}
   end
