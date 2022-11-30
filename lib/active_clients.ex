@@ -12,7 +12,6 @@ defmodule ActiveClients do
 
   def add_client(%ActiveClients{acl_pid: acl_pid}, client_pid, socket) do
     Agent.update(acl_pid, &Map.put(&1, client_pid, socket))
-    # Agent.update(acl.acl_pid, fn map -> Map.put(map, pid, socket) end)
   end
 
   def remove_client(%ActiveClients{acl_pid: acl_pid}, client_pid) do

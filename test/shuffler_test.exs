@@ -12,11 +12,31 @@ defmodule FlukyChat.ShufflerTest do
       acl = ActiveClients.start()
       ActiveClients.add_client(acl, 1, :socket)
       ActiveClients.add_client(acl, 2, :other_socket)
-      shuffled_list = Shuffler.shuffle(shuffler, acl)
-      refute ActiveClients.empty?(shuffled_list)
+
+      :ok = Shuffler.shuffle(shuffler, acl)
+
+      assert Shuffler.get_client_pair(shuffler, 1) == 2
+      assert Shuffler.get_client_pair(shuffler, 2) == 1
     end
 
-    # TODO: qué pasa cuando hay un solo cliente en ActiveClients?
-    # Actualmente crashea cuando se intenta hacer un shuffle
+    test "Shuffle an ActiveClients with a multiple pairs of clients shuffles the clients" do
+      shuffler = Shuffler.start()
+      acl = ActiveClients.start()
+      ActiveClients.add_client(acl, 1, :socket)
+      ActiveClients.add_client(acl, 2, :socket)
+      ActiveClients.add_client(acl, 3, :socket)
+      ActiveClients.add_client(acl, 4, :socket)
+      ActiveClients.add_client(acl, 5, :socket)
+      ActiveClients.add_client(acl, 6, :socket)
+
+      :ok = Shuffler.shuffle(shuffler, acl)
+
+      assert Shuffler.get_client_pair(shuffler, 1) != 1
+      assert Shuffler.get_client_pair(shuffler, 2) != 2
+      assert Shuffler.get_client_pair(shuffler, 3) != 3
+      assert Shuffler.get_client_pair(shuffler, 4) != 4
+      assert Shuffler.get_client_pair(shuffler, 5) != 5
+      assert Shuffler.get_client_pair(shuffler, 6) != 6
+    end
   end
 end
