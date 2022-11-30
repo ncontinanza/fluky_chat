@@ -9,7 +9,16 @@ defmodule ChatManager do
     |> ActiveClients.remove_client(client_pid)
 
     # Remove client from Shuffler
-    
+    shuffler = chat_manager[:shuffler]
+    pair_pid = Shuffler.get_client_pair(shuffler, client_pid)
+    Shuffler.remove_client(shuffler, client_pid)
+
+    # Move pair client to the waiting room
+    chat_manager
+    |> Map.get(:waiting_room)
+    |> WaitingRoom.queue(pair_pid)
+
+
   end
 
 end
