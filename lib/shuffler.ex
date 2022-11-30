@@ -42,4 +42,5 @@ defmodule Shuffler do
     Agent.update(shuffler_pid, &Map.put(&1, pid_x, pid_y))
     Agent.update(shuffler_pid, &Map.put(&1, pid_y, pid_x))
   end
+  
 end
