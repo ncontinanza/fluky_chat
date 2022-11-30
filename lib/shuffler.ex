@@ -25,9 +25,7 @@ defmodule Shuffler do
     end
   end
 
-  defp do_shuffle(pid_set, %Shuffler{shuffler_pid: shuffler_pid} = shuffler) do
-    IO.inspect(pid_set, label: "PID SET: ")
-
+  defp do_shuffle(pid_set, %Shuffler{} = shuffler) do
     if Enum.empty?(pid_set) do
       :ok
     else
@@ -37,12 +35,16 @@ defmodule Shuffler do
       pid_set
       |> MapSet.delete(pid_x)
       |> MapSet.delete(pid_y)
-      |> do_shuffle(shuffler_pid)
+      |> do_shuffle(shuffler)
     end
   end
 
   def update(%Shuffler{shuffler_pid: shuffler_pid}, pid_x, pid_y) do
     Agent.update(shuffler_pid, &Map.put(&1, pid_x, pid_y))
     Agent.update(shuffler_pid, &Map.put(&1, pid_y, pid_x))
+  end
+
+  def get_client_pair(%Shuffler{shuffler_pid: shuffler_pid}, client_pid) do
+    Agent.get(shuffler_pid, fn clients_map -> Map.get(clients_map, client_pid) end)
   end
 end
