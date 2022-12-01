@@ -7,25 +7,23 @@ defmodule WaitingRoom do
     %WaitingRoom{waiting_room_pid: pid}
   end
 
-  def queue(%WaitingRoom{waiting_room_pid: waiting_room_pid}, client_pid) do
-    Agent.update(waiting_room_pid, &List.insert_at(&1, -1, client_pid))
+  def queue(%WaitingRoom{waiting_room_pid: waiting_room_pid}, %ClientConnection{} = client) do
+    Agent.update(waiting_room_pid, &List.insert_at(&1, -1, client))
   end
 
   defp dequeue(%WaitingRoom{waiting_room_pid: waiting_room_pid}) do
     Agent.get_and_update(waiting_room_pid, &List.pop_at(&1, 0))
   end
 
-  def dequeue_pair(%WaitingRoom{} = waiting_list) do
+  def try_dequeue_pair(%WaitingRoom{} = waiting_list) do
 
-    pid_waiting_number = waiting_list
-      |> Map.get(:waiting_room_pid)
-      |> Agent.get(&Enum.count(&1))
-
-    if pid_waiting_number >= 2 do
-      {:ok, {dequeue(waiting_list), dequeue(waiting_list)}}
-    else
-      {:not_enough_clients}
-    end
+    waiting_list
+    |> Map.get(:waiting_room_pid)
+    |> Agent.get(&Enum.count(&1))
+    |> Kernel.if(
+      do: {:ok, {dequeue(waiting_list), dequeue(waiting_list)}},
+      else: {:not_enough_clients}
+    )
 
   end
 
