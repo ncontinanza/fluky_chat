@@ -7,19 +7,16 @@ defmodule Shuffler do
     %Shuffler{shuffler_pid: pid}
   end
 
-  def shuffle(
-        %Shuffler{shuffler_pid: shuffler_pid} = shuffler,
-        active_clients
-      ) do
+  def shuffle(%Shuffler{shuffler_pid: shuffler_pid} = shuffler, active_clients) do
     cond do
       ActiveClients.empty?(active_clients) ->
         active_clients
 
       true ->
-        Agent.update(shuffler_pid, fn _ -> %{} end)
+        Agent.update(shuffler_pid, fn _state -> %{} end)
 
         ActiveClients.get_all_clients(active_clients)
-        |> Map.keys()
+        |> Enum.map(&Map.get(&1, :pid))
         |> MapSet.new()
         |> do_shuffle(shuffler)
     end
@@ -47,4 +44,12 @@ defmodule Shuffler do
   def get_client_pair(%Shuffler{shuffler_pid: shuffler_pid}, client_pid) do
     Agent.get(shuffler_pid, fn clients_map -> Map.get(clients_map, client_pid) end)
   end
+
+  def remove_client(%Shuffler{} = shuffler, client_pid) do
+    pair_pid = Shuffler.get_client_pair(shuffler, client_pid)
+
+    Agent.update(shuffler[:shuffler_pid], &Map.delete(&1, client_pid))
+    Agent.update(shuffler[:shuffler_pid], &Map.delete(&1, pair_pid))
+  end
+
 end

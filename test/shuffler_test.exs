@@ -10,8 +10,8 @@ defmodule FlukyChat.ShufflerTest do
     test "Shuffle an ActiveClients with a single pair of clients returns the same ActiveClients" do
       shuffler = Shuffler.start()
       acl = ActiveClients.start()
-      ActiveClients.add_client(acl, 1, :socket)
-      ActiveClients.add_client(acl, 2, :other_socket)
+      ActiveClients.add_client(acl, %ClientConnection{pid: 1, socket: :socket})
+      ActiveClients.add_client(acl, %ClientConnection{pid: 2, socket: :other_socket})
 
       :ok = Shuffler.shuffle(shuffler, acl)
 
@@ -22,12 +22,12 @@ defmodule FlukyChat.ShufflerTest do
     test "Shuffle an ActiveClients with a multiple pairs of clients shuffles the clients" do
       shuffler = Shuffler.start()
       acl = ActiveClients.start()
-      ActiveClients.add_client(acl, 1, :socket)
-      ActiveClients.add_client(acl, 2, :socket)
-      ActiveClients.add_client(acl, 3, :socket)
-      ActiveClients.add_client(acl, 4, :socket)
-      ActiveClients.add_client(acl, 5, :socket)
-      ActiveClients.add_client(acl, 6, :socket)
+      ActiveClients.add_client(acl, %ClientConnection{pid: 1, socket: :socket})
+      ActiveClients.add_client(acl, %ClientConnection{pid: 2, socket: :socket})
+      ActiveClients.add_client(acl, %ClientConnection{pid: 3, socket: :socket})
+      ActiveClients.add_client(acl, %ClientConnection{pid: 4, socket: :socket})
+      ActiveClients.add_client(acl, %ClientConnection{pid: 5, socket: :socket})
+      ActiveClients.add_client(acl, %ClientConnection{pid: 6, socket: :socket})
 
       :ok = Shuffler.shuffle(shuffler, acl)
 
