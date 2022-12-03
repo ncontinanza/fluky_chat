@@ -20,6 +20,7 @@ defmodule WaitingRoom do
     waiting_list
     |> Map.get(:waiting_room_pid)
     |> Agent.get(&Enum.count(&1))
+    |> Kernel.then(&(&1 >= 2))
     |> Kernel.if(
       do: {:ok, {dequeue(waiting_list), dequeue(waiting_list)}},
       else: {:not_enough_clients}

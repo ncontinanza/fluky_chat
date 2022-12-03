@@ -9,13 +9,13 @@ defmodule Shuffler do
 
   def shuffle(%Shuffler{shuffler_pid: shuffler_pid} = shuffler, active_clients) do
     cond do
-      ActiveClients.empty?(active_clients) ->
+      Enum.empty?(active_clients) ->
         active_clients
 
       true ->
         Agent.update(shuffler_pid, fn _state -> %{} end)
 
-        ActiveClients.get_all_clients(active_clients)
+        active_clients
         |> Enum.map(&Map.get(&1, :pid))
         |> MapSet.new()
         |> do_shuffle(shuffler)
@@ -23,17 +23,20 @@ defmodule Shuffler do
   end
 
   defp do_shuffle(pid_set, %Shuffler{} = shuffler) do
-    if Enum.empty?(pid_set) do
-      :ok
-    else
-      [pid_x, pid_y] = Enum.take_random(pid_set, 2)
-      Shuffler.update(shuffler, pid_x, pid_y)
 
-      pid_set
-      |> MapSet.delete(pid_x)
-      |> MapSet.delete(pid_y)
-      |> do_shuffle(shuffler)
+    case Enum.count(pid_set) do
+      0 -> {:ok, :no_one}
+      1 -> {:one_left, pid_set |> Enum.at(0)}
+      _ ->
+        [pid_x, pid_y] = Enum.take_random(pid_set, 2)
+        Shuffler.update(shuffler, pid_x, pid_y)
+
+        pid_set
+        |> MapSet.delete(pid_x)
+        |> MapSet.delete(pid_y)
+        |> do_shuffle(shuffler)
     end
+
   end
 
   def update(%Shuffler{shuffler_pid: shuffler_pid}, pid_x, pid_y) do

@@ -18,29 +18,58 @@ defmodule ChatManager do
     |> Map.get(:acl)
     |> ActiveClients.remove_client(pair_pid)
 
-    # Add pair client to the waiting room
+    # Move pair client from active client list to the waiting room
+    pair_client = chat_manager
+                  |> Map.get(:acl)
+                  |> ActiveClients.remove_client(pair_pid)
+
     chat_manager
     |> Map.get(:waiting_room)
-    |> WaitingRoom.queue(pair_pid)
+    |> WaitingRoom.queue(pair_client)
   end
 
-  def move_to_waiting_room(%ChatManager{} = chat_manager, client_pid) do
+  def move_client_into_waiting_room(%ChatManager{waiting_room: waiting_room} = chat_manager, %ClientConnection{} = client) do
     # Move client to the waiting room
-    chat_manager
-    |> Map.get(:waiting_room)
-    |> WaitingRoom.queue(client_pid)
+    WaitingRoom.queue(waiting_room, client)
 
     # If could make a pair, then connect the two clients.
-    case WaitingRoom.try_dequeue_pair(chat_manager[:waiting_room]) do
+    case WaitingRoom.try_dequeue_pair(waiting_room) do
       {:ok, clients} -> connect_two_clients(chat_manager, clients)
       {:not_enough_clients} -> :ok
     end
 
   end
 
-  defp connect_two_clients(%ChatManager{} = chat_manager, {cli_x, cli_y}) do
+  defp connect_two_clients(%ChatManager{acl: acl, shuffler: shuffler}, {%ClientConnection{} = cli_x, %ClientConnection{} = cli_y}) do
     # Move clients to ActiveClients list
-    chat_manager
+    ActiveClients.add_client(acl, cli_x)
+    ActiveClients.add_client(acl, cli_y)
+
+    # Connect them in the shuffler
+    Shuffler.update(shuffler, Map.get(cli_x, :pid), Map.get(cli_y, :pid))
+
+    # Return
+    :ok
   end
+
+  def try_send_message_to_pair(%ChatManager{acl: acl, shuffler: shuffler}, client_pid, message) do
+    # Get pair pid
+    maybe_pair_pid = Shuffler.get_client_pair(shuffler, client_pid)
+    send_message(acl, maybe_pair_pid, message |> Message.with_pid(client_pid))
+  end
+
+  defp send_message(%ActiveClients{}, pid, _message) when is_nil(pid) do
+    {:error, Message.client_is_not_chatting}
+  end
+
+  defp send_message(%ActiveClients{} = acl, pid, message) do
+    acl
+    |> ActiveClients.get_client(pid)
+    |> Map.get(:socket)
+    |> :gen_tcp.send(message)
+
+    {:ok, :done}
+  end
+
 
 end

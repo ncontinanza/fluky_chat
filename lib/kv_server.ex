@@ -13,23 +13,31 @@ defmodule KVServer do
       :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])
 
     Logger.info("Accepting connections on port #{port}")
-    acl = ActiveClients.start()
-    loop_acceptor(socket, acl)
+
+    chat_manager = %ChatManager{
+      acl: ActiveClients.start(),
+      shuffler: Shuffler.start(),
+      waiting_room: WaitingRoom.start()
+    }
+
+    loop_acceptor(socket, chat_manager)
   end
 
-  defp loop_acceptor(socket, acl) do
+  defp loop_acceptor(socket, chat_manager) do
     {:ok, client_socket} = :gen_tcp.accept(socket)
 
     # create supervised process and give client the socket to be able to interact
     # use serve function for se
     {:ok, client_pid} =
-      Task.Supervisor.start_child(KVServer.TaskSupervisor, fn -> serve(client_socket, acl) end)
+      Task.Supervisor.start_child(KVServer.TaskSupervisor, fn -> ClientConnection.serve(client_socket, chat_manager) end)
 
     :ok = :gen_tcp.controlling_process(client_socket, client_pid)
-    acl |> ActiveClients.add_client(client_pid, client_socket)
-    loop_acceptor(socket, acl)
+    # MOVE CLIENT INTO THE WAITING ROOM
+    chat_manager |> ChatManager.move_client_into_waiting_room(%ClientConnection{pid: client_pid, socket: client_socket})
+    loop_acceptor(socket, chat_manager)
   end
 
+  '''
   defp serve(socket, acl) do
     # serve acts as a client handler
     # receives message from client and sends it to the rest of clients
@@ -55,4 +63,6 @@ defmodule KVServer do
       end
     end
   end
+  '''
+
 end
