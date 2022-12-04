@@ -7,20 +7,25 @@ defmodule ChatManager do
     chat_manager
     |> Map.get(:acl)
     |> ActiveClients.remove_client(client_pid)
+    |> remove_from_all_structures(chat_manager, client_pid)
+  end
 
+  defp remove_from_all_structures(nil, %ChatManager{waiting_room: waiting_room}, client_pid) do
+    # Remove from waiting room
+    waiting_room
+    |> WaitingRoom.remove_client(client_pid)
+  end
+
+  defp remove_from_all_structures(_client, %ChatManager{acl: acl, shuffler: shuffler, waiting_room: waiting_room}, client_pid) do
     # Remove client from Shuffler
-    shuffler = Map.get(chat_manager, :shuffler)
     pair_pid = Shuffler.get_client_pair(shuffler, client_pid)
     Shuffler.remove_client(shuffler, client_pid)
 
     # Remove pair client from active clients list
-    pair_client = chat_manager
-                  |> Map.get(:acl)
-                  |> ActiveClients.remove_client(pair_pid)
+    pair_client = acl |> ActiveClients.remove_client(pair_pid)
 
     # Move pair client from active client list to the waiting room
-    chat_manager
-    |> Map.get(:waiting_room)
+    waiting_room
     |> WaitingRoom.queue(pair_client)
   end
 

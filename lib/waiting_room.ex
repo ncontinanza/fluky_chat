@@ -32,4 +32,8 @@ defmodule WaitingRoom do
     Agent.get(waiting_room_pid, & &1)
   end
 
+  def remove_client(%WaitingRoom{waiting_room_pid: waiting_room_pid}, client_pid) do
+    Agent.update(waiting_room_pid, &Enum.filter(&1, fn client -> Map.get(client, :pid) != client_pid end))
+  end
+
 end
