@@ -28,4 +28,8 @@ defmodule WaitingRoom do
 
   end
 
+  def get_all_clients(%WaitingRoom{waiting_room_pid: waiting_room_pid}) do
+    Agent.get(waiting_room_pid, & &1)
+  end
+
 end

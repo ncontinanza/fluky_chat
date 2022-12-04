@@ -25,6 +25,7 @@ defmodule FlukyChat do
     # create supervisor process for supervising supervisor child process
     children = [
       {Task.Supervisor, name: KVServer.TaskSupervisor},
+      {Task.Supervisor, name: Timer.TaskSupervisor},
       Supervisor.child_spec({Task, fn -> KVServer.accept(port) end}, restart: :permanent)
     ]
     # params for start_link
