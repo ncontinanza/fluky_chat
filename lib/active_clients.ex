@@ -29,4 +29,8 @@ defmodule ActiveClients do
   def empty?(acl) do
     Enum.empty?(ActiveClients.get_all_clients(acl))
   end
+
+  def length(acl) do
+    Enum.count(ActiveClients.get_all_clients(acl))
+  end
 end
