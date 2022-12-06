@@ -22,7 +22,6 @@ defmodule ClientConnection do
       # if connection chat_manager client got closed, remove client
       {:error, :closed} ->
         ChatManager.disconnect_client(chat_manager, my_pid)
-      #
       {:error, :enotconn} ->
         :ok
     end

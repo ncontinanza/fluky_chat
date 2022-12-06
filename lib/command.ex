@@ -12,6 +12,10 @@ defmodule Command do
     ClientConnection.send_message(client, time_left)
   end
 
+  def execute({:h, _message}, %ChatManager{} = _chat_manager, %ClientConnection{} = client, _timer) do
+    ClientConnection.send_message(client, Message.help())
+  end
+
   defp if_send_fails_then_notify_client({:ok, _}, %ClientConnection{} = _client) do
     :ok
   end
