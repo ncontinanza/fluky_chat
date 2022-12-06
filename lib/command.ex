@@ -1,16 +1,16 @@
 defmodule Command do
 
-  def execute({:m, message}, %ChatManager{} = chat_manager, client_pid, client_socket) do
-    ChatManager.try_send_message_to_pair(chat_manager, client_pid, message)
-    |> if_send_fails_then_notify_client(client_socket)
+  def execute({:m, message}, %ChatManager{} = chat_manager, %ClientConnection{pid: pid} = client, _timer) do
+    ChatManager.try_send_message_to_pair(chat_manager, pid, message)
+    |> if_send_fails_then_notify_client(client)
   end
 
-  defp if_send_fails_then_notify_client({:ok, _}, _my_socket) do
+  defp if_send_fails_then_notify_client({:ok, _}, %ClientConnection{} = _client) do
     :ok
   end
 
-  defp if_send_fails_then_notify_client({:error, reason}, my_socket) do
-    :gen_tcp.send(my_socket, reason)
+  defp if_send_fails_then_notify_client({:error, reason}, %ClientConnection{} = client) do
+    ClientConnection.send_message(client, reason)
   end
 
 end
