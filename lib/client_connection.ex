@@ -11,8 +11,9 @@ defmodule ClientConnection do
     my_pid = self()
     case :gen_tcp.recv(socket, 0) do
       {:ok, data} ->
-        ChatManager.try_send_message_to_pair(chat_manager, my_pid, data)
-        |> if_send_fails_then_notify_client(socket)
+        data
+        |> Decoder.decode_message
+        |> Command.execute(chat_manager, my_pid, socket)
         serve(socket, chat_manager, timer)
       # if connection chat_manager client got closed, remove client
       {:error, :closed} ->
@@ -21,13 +22,5 @@ defmodule ClientConnection do
       {:error, :enotconn} ->
         :ok
     end
-  end
-
-  def if_send_fails_then_notify_client({:ok, _}, _my_socket) do
-    :ok
-  end
-
-  def if_send_fails_then_notify_client({:error, reason}, my_socket) do
-    :gen_tcp.send(my_socket, reason)
   end
 end
