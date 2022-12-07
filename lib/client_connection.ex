@@ -12,6 +12,7 @@ defmodule ClientConnection do
   end
 
   def serve(%ClientConnection{} = client, %ChatManager{} = chat_manager, %Timer{} = timer) do
+    ClientConnection.send_message(client, Message.inform_looking_for_clients())
     my_pid = self()
     client
     |> Map.put(:pid, my_pid)

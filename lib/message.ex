@@ -101,4 +101,9 @@ defmodule Message do
     |> info_message
   end
 
+  def inform_looking_for_clients do
+    "Looking for users to start chatting!"
+    |> info_message
+  end
+
 end
