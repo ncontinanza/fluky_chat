@@ -91,6 +91,14 @@ defmodule Message do
     |> Time.to_string
   end
 
+  def client_has_left_the_room(%ClientConnection{nickname: nil, pid: pid}) do
+    "#{inspect pid} has left the room! Looking for other users..."
+    |> info_message
+  end
 
+  def client_has_left_the_room(%ClientConnection{nickname: nickname}) do
+    "#{nickname} has left the room! Looking for other users..."
+    |> info_message
+  end
 
 end

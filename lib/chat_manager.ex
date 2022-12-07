@@ -16,13 +16,16 @@ defmodule ChatManager do
     |> WaitingRoom.remove_client(client_pid)
   end
 
-  defp remove_from_all_structures(_client, %ChatManager{acl: acl, shuffler: shuffler, waiting_room: waiting_room}, client_pid) do
+  defp remove_from_all_structures(%ClientConnection{} = client, %ChatManager{acl: acl, shuffler: shuffler, waiting_room: waiting_room}, client_pid) do
     # Remove client from Shuffler
     pair_pid = Shuffler.get_client_pair(shuffler, client_pid)
     Shuffler.remove_client(shuffler, client_pid)
 
     # Remove pair client from active clients list
     pair_client = acl |> ActiveClients.remove_client(pair_pid)
+
+    # Inform client has left
+    ClientConnection.send_message(pair_client, Message.client_has_left_the_room(client))
 
     # Move pair client from active client list to the waiting room
     waiting_room

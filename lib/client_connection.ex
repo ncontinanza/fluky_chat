@@ -2,6 +2,8 @@ defmodule ClientConnection do
   defstruct [:pid, :socket, :nickname]
 
   def send_message(%ClientConnection{socket: socket}, message) do
+    # ClientConnection will have the pid of the process who I want to send
+    # the message.
     :gen_tcp.send(socket, message)
   end
 
