@@ -1,7 +1,15 @@
 defmodule Message do
 
-  def with_pid(message, client_pid) do
-    "<#{inspect client_pid}>: #{message}"
+  def with_pid(message, %ClientConnection{pid: pid}) do
+    "<#{inspect pid}>: #{message}" <> "\n"
+  end
+
+  def with_nickname(message, %ClientConnection{nickname: nil} = client) do
+    Message.with_pid(message, client)
+  end
+
+  def with_nickname(message, %ClientConnection{nickname: nickname} = _client) do
+    "<#{nickname}>: " <> message <> "\n"
   end
 
   defp info_message(msg) do
@@ -12,8 +20,26 @@ defmodule Message do
     "[HELP]: " <> msg <> "\n"
   end
 
+  defp time_message(msg) do
+    "[TIME]: " <> msg <> "\n"
+  end
+
+  defp error_message(msg) do
+    "[ERROR]: " <> msg <> "\n"
+  end
+
+  def help do
+       help_message("COMMANDS LIST:")
+    <> help_message(":h -> Displays this")
+    <> help_message(":t -> Displays the remaining time until the chat shuffler")
+    <> help_message(":m [message] -> Sends a message")
+    <> help_message(":n [new_nick] -> Updates your nickname to [new_nick]")
+    <> help_message("To disconnect -> Ctrl+C")
+    <> "\n"
+  end
+
   def client_is_not_chatting do
-    "[INFO]: You are not chatting with anyone!"
+    "You are not chatting with anyone!"
     |> info_message
   end
 
@@ -27,21 +53,34 @@ defmodule Message do
     |> info_message
   end
 
-  def say_hi_to(client_nick) do
-    "Say something nice to #{inspect client_nick}!"
+  def say_hi_to(%ClientConnection{nickname: nil, pid: pid}) do
+    "Say something nice to #{inspect pid}!"
     |> info_message
+  end
+
+  def say_hi_to(%ClientConnection{nickname: nickname}) do
+    "Say something nice to #{nickname}!"
+    |> info_message
+  end
+
+  def notify_nickname_update(%ClientConnection{nickname: nickname}) do
+    "Your nickname is now: #{nickname}"
+    |> info_message
+  end
+
+  def unknown_command(cmd, args) do
+    "Couldn't recognize command '#{Atom.to_string cmd}' with arguments '#{args}'"
+    |> error_message
+  end
+
+  def cannot_execute_command_while_not_chatting do
+    "You can't execute this command if you're not chatting!"
+    |> error_message
   end
 
   def time_left(remaining_seconds) do
     "Time left: #{format_time(remaining_seconds)}"
-    |> info_message
-  end
-
-  def help do
-    help_message("COMMANDS LIST:")
-    <> help_message(":h -> Displays this")
-    <> help_message(":t -> Displays the remaining time until the chat shuffler")
-    <> help_message(":m [message] -> Sends a message")
+    |> time_message
   end
 
   defp format_time(remaining_seconds) do

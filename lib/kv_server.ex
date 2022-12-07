@@ -31,7 +31,7 @@ defmodule KVServer do
     # create supervised process and give client the socket to be able to interact
     # use serve function for se
     {:ok, client_pid} =
-      Task.Supervisor.start_child(KVServer.TaskSupervisor, fn -> ClientConnection.serve(client_socket, chat_manager, timer) end)
+      Task.Supervisor.start_child(KVServer.TaskSupervisor, fn -> ClientConnection.serve(%ClientConnection{socket: client_socket}, chat_manager, timer) end)
 
     :ok = :gen_tcp.controlling_process(client_socket, client_pid)
     # MOVE CLIENT INTO THE WAITING ROOM
