@@ -9,6 +9,8 @@ defmodule WaitingRoom do
 
   def queue(%WaitingRoom{waiting_room_pid: waiting_room_pid}, %ClientConnection{} = client) do
     Agent.update(waiting_room_pid, &List.insert_at(&1, -1, client))
+    Agent.get(waiting_room_pid, & &1) |> IO.inspect
+    :ok
   end
 
   defp dequeue(%WaitingRoom{waiting_room_pid: waiting_room_pid}) do
@@ -30,6 +32,10 @@ defmodule WaitingRoom do
 
   def get_all_clients(%WaitingRoom{waiting_room_pid: waiting_room_pid}) do
     Agent.get(waiting_room_pid, & &1)
+  end
+
+  def remove_all_clients(%WaitingRoom{waiting_room_pid: waiting_room_pid}) do
+    Agent.get_and_update(waiting_room_pid, & {&1, []})
   end
 
   def remove_client(%WaitingRoom{waiting_room_pid: waiting_room_pid}, client_pid) do

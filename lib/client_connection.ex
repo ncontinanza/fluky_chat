@@ -1,33 +1,38 @@
 defmodule ClientConnection do
-  defstruct [:pid, :socket]
+  defstruct [:pid, :socket, :nickname]
 
   def send_message(%ClientConnection{socket: socket}, message) do
+    # ClientConnection will have the pid of the process who I want to send
+    # the message.
     :gen_tcp.send(socket, message)
   end
 
-  def serve(socket, %ChatManager{} = chat_manager, %Timer{} = timer) do
-    # serve acts as a client handler
-    # receives message from client and sends it to the rest of clients
+  def update_nickname(%ClientConnection{pid: pid, socket: socket}, new_nick) do
+    %ClientConnection{pid: pid, socket: socket, nickname: new_nick}
+  end
+
+  def serve(%ClientConnection{} = client, %ChatManager{} = chat_manager, %Timer{} = timer) do
+    ClientConnection.send_message(client, Message.inform_looking_for_clients())
     my_pid = self()
+    client
+    |> Map.put(:pid, my_pid)
+    |> receive_msg(chat_manager, timer)
+  end
+
+  defp receive_msg(%ClientConnection{pid: my_pid, socket: socket} = client, %ChatManager{} = chat_manager, %Timer{} = timer) do
     case :gen_tcp.recv(socket, 0) do
       {:ok, data} ->
-        ChatManager.try_send_message_to_pair(chat_manager, my_pid, data)
-        |> if_send_fails_then_notify_client(socket)
-        serve(socket, chat_manager, timer)
+        data
+        |> Decoder.decode_message
+        |> Command.execute(chat_manager, client, timer)
+        |> receive_msg(chat_manager, timer)
+
       # if connection chat_manager client got closed, remove client
       {:error, :closed} ->
         ChatManager.disconnect_client(chat_manager, my_pid)
-      #
+
       {:error, :enotconn} ->
         :ok
     end
-  end
-
-  def if_send_fails_then_notify_client({:ok, _}, _my_socket) do
-    :ok
-  end
-
-  def if_send_fails_then_notify_client({:error, reason}, my_socket) do
-    :gen_tcp.send(my_socket, reason)
   end
 end
