@@ -12,15 +12,15 @@ Una vez teniendo el proyecto clonado, accedemos al directorio principal y podemo
 
 1. Debido se utilizó *Mix* (una herramienta que, en simples palabras, genera estructura y archivos necesarios para un proyecto) debemos iniciar y cargar los archivos del proyecto:
 
-```$ iex -S mix```
+&emsp;&emsp;```$ iex -S mix```
 
 2. Ya dentro del *Interactive* de *Elixir*, debemos levantar el servidor de *FlukyChat*:
 
-```iex(1)> FlukyChat.start```
+&emsp;&emsp;```iex(1)> FlukyChat.start```
 
 3. A continuación, ya estamos listos para interactuar con el servidor. Esto lo haremos a partir de simplemente abrir nuevas ventanas y utilizar *netcat* para conectarnos eligiendo como host al `localhost` y como puerto al `4040` (ya que es el puerto al que estará escuchando *FlukyChat*):
 
-```$ netcat localhost 4040```
+&emsp;&emsp;```$ netcat localhost 4040```
 
 #### Comandos de usuario
 
