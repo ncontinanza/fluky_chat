@@ -1,24 +1,28 @@
 # FlukyChat
 
-*FlukyChat* es un chat implementado en Elixir donde usuarios pueden interactuar por un tiempo determinado con otros usuarios enviándose mensajes hasta que suceda un *shuffle* que provocará que cambie el usuario con quien se está chateando por cualquier otro usuario aleatorio que esté conectado al chat.
+*FlukyChat* es un chat implementado en *Elixir* donde usuarios pueden interactuar por un tiempo determinado con otros usuarios enviándose mensajes hasta que suceda un *shuffle* que provocará que cambie el usuario con quien se está chateando por cualquier otro usuario aleatorio que esté conectado al chat.
 
 ### Requerimientos
 
 - Elixir (indicaciones para instalarlo en múltiples sistemas operativos en https://elixir-lang.org/install.html).
 
-### Ejecución
+## Ejecución
 
 Una vez teniendo el proyecto clonado, accedemos al directorio principal y podemos ejecutar los siguientes comandos para interactuar con la aplicación.
 
-1. Debido se utilizó *Mix* (una herramienta que, en simples palabras, genera estructura y archivos necesarios para un proyecto) debemos iniciar y cargar los archivos del proyecto:
+1. Debido se utilizó *mix* (una herramienta que, en simples palabras, genera estructura y archivos necesarios para un proyecto) debemos iniciar y cargar los archivos del proyecto:
 
 &emsp;&emsp;```$ iex -S mix```
+
+&emsp;&emsp;También será posible ejecutar tests usando *mix* a partir del comando:
+
+&emsp;&emsp;```$ mix test```
 
 2. Ya dentro del *Interactive* de *Elixir*, debemos levantar el servidor de *FlukyChat*:
 
 &emsp;&emsp;```iex(1)> FlukyChat.start```
 
-3. A continuación, ya estamos listos para interactuar con el servidor. Esto lo haremos a partir de simplemente abrir nuevas ventanas y utilizar *netcat* para conectarnos eligiendo como host al `localhost` y como puerto al `4040` (ya que es el puerto al que estará escuchando *FlukyChat*):
+3. A continuación, ya estamos listos para comenzar a chatear. Esto lo haremos a partir de simplemente abrir nuevas ventanas de la terminal y utilizar *netcat* para conectarnos eligiendo como host al `localhost` y como puerto al `4040` (ya que es el puerto al que estará escuchando *FlukyChat*):
 
 &emsp;&emsp;```$ netcat localhost 4040```
 
