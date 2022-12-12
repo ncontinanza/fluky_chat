@@ -11,7 +11,7 @@ defmodule ActiveClients do
   end
 
   def add_client(%ActiveClients{acl_pid: acl_pid}, %ClientConnection{pid: client_pid} = client) do
-    
+
     Agent.update(acl_pid, &Map.put(&1, client_pid, client))
   end
 
@@ -42,7 +42,11 @@ defmodule ActiveClients do
     Enum.empty?(ActiveClients.get_all_clients(acl))
   end
 
-  defp update_client_nickname(client_map, %ClientConnection{pid: client_pid}, new_nick) do
+  def length(acl) do
+    Enum.count(ActiveClients.get_all_clients(acl))
+  end
+
+    defp update_client_nickname(client_map, %ClientConnection{pid: client_pid}, new_nick) do
     Map.update!(client_map, client_pid, &ClientConnection.update_nickname(&1, new_nick))
     |> Kernel.then(& {Map.get(&1, client_pid), &1})
   end

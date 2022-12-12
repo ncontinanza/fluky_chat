@@ -15,7 +15,7 @@ defmodule FlukyChat.ShufflerTest do
       ActiveClients.add_client(acl, %ClientConnection{pid: 1, socket: :socket})
       ActiveClients.add_client(acl, %ClientConnection{pid: 2, socket: :other_socket})
 
-      {:ok, :no_one} = Shuffler.shuffle(shuffler, ActiveClients.get_all_clients(acl))
+      {:ok, :nil} = Shuffler.shuffle(shuffler, ActiveClients.get_all_clients(acl))
 
       assert Shuffler.get_client_pair(shuffler, 1) == 2
       assert Shuffler.get_client_pair(shuffler, 2) == 1
@@ -31,7 +31,7 @@ defmodule FlukyChat.ShufflerTest do
       ActiveClients.add_client(acl, %ClientConnection{pid: 5, socket: :socket})
       ActiveClients.add_client(acl, %ClientConnection{pid: 6, socket: :socket})
 
-      {:ok, :no_one} = Shuffler.shuffle(shuffler, ActiveClients.get_all_clients(acl))
+      {:ok, :nil} = Shuffler.shuffle(shuffler, ActiveClients.get_all_clients(acl))
 
       assert Shuffler.get_client_pair(shuffler, 1) != 1
       assert Shuffler.get_client_pair(shuffler, 2) != 2
