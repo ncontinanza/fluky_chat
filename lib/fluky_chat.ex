@@ -1,25 +1,4 @@
 defmodule FlukyChat do
-  @moduledoc """
-  Documentation for `FlukyChat`.
-  """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> FlukyChat.hello()
-      :world
-
-  """
-  def hello do
-    :world
-  end
-
-  def main(_args \\ []) do
-    IO.puts("hello world")
-  end
-
   def start() do
     port = String.to_integer(System.get_env("PORT") || "4040")
     # create supervisor process for supervising supervisor child process
