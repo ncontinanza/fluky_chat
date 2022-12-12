@@ -18,7 +18,7 @@ Una vez teniendo el proyecto clonado, accedemos al directorio principal y podemo
 
 ```iex(1)> FlukyChat.start```
 
-3. A continuación, ya estamos listos para interactuar con el servidor. Esto lo haremos a partir de simplemente abrir nuevas ventanas y utilizar *netcat* para conectarnos eligiendo como host al `localhost` y como puerto al `4040`:
+3. A continuación, ya estamos listos para interactuar con el servidor. Esto lo haremos a partir de simplemente abrir nuevas ventanas y utilizar *netcat* para conectarnos eligiendo como host al `localhost` y como puerto al `4040` (ya que es el puerto al que estará escuchando *FlukyChat*):
 
 ```$ netcat localhost 4040```
 
@@ -28,7 +28,7 @@ Una vez conectados, los usuarios pueden interactuar con la aplicación y otros c
 
 - `:h` -> Muestra un instructivo (similar a este) sobre el uso de cada comando.
 - `:t` -> Muestra el tiempo restante antes de que suceda el *shuffle* en el chat.
-- `:m [mensage]` -> Envía el mensaje `[mensaje]` al usuario que se está hablando hablando actualmente. Ees opcional, es decir, por default escribir un mensaje y apretar `enter` envía un mensaje aunque no se explicite el `:m`.
+- `:m [mensage]` -> Envía el mensaje `[mensaje]` al usuario que se está hablando hablando actualmente. Es opcional, es decir, por default escribir un mensaje y apretar `enter` envía un mensaje aunque no se explicite el `:m`.
 - `:n [nuevo_nickname]` -> Actualiza el nickname a `nuevo_nickname`.
 - `Ctrl+C` -> Desconecta al usuario del chat.
 
