@@ -1,6 +1,6 @@
 # FlukyChat
 
-*FlukyChat* es un chat implementado en *Elixir* donde usuarios pueden interactuar por un tiempo determinado con otros usuarios enviándose mensajes hasta que suceda un *shuffle* que provocará que cambie el usuario con quien se está chateando por cualquier otro usuario aleatorio que esté conectado al chat.
+*FlukyChat* es un chat privado, aleatorio y anónimo implementado en *Elixir* donde usuarios pueden interactuar por un tiempo determinado con otros usuarios enviándose mensajes hasta que suceda un *shuffle* que provocará que cambie el usuario con quien se está chateando por cualquier otro usuario que esté conectado al chat.
 
 ### Requerimientos
 
