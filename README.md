@@ -28,7 +28,7 @@ Una vez conectados, los usuarios pueden interactuar con la aplicación y otros c
 
 - `:h` -> Muestra un instructivo (similar a este) sobre el uso de cada comando.
 - `:t` -> Muestra el tiempo restante antes de que suceda el *shuffle* en el chat.
-- `:m [mensage]` -> Envía el mensaje `[mensaje]` al usuario que se está hablando hablando actualmente. Es opcional, es decir, por default escribir un mensaje y apretar `enter` envía un mensaje aunque no se explicite el `:m`.
+- `:m [mensaje]` -> Envía el mensaje `[mensaje]` al usuario que se está hablando hablando actualmente. Es opcional, es decir, por default escribir un mensaje y apretar `enter` envía un mensaje aunque no se explicite el `:m`.
 - `:n [nuevo_nickname]` -> Actualiza el nickname a `nuevo_nickname`.
 - `Ctrl+C` -> Desconecta al usuario del chat.
 
