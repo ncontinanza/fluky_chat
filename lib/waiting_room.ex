@@ -9,7 +9,7 @@ defmodule WaitingRoom do
 
   def queue(%WaitingRoom{waiting_room_pid: waiting_room_pid}, %ClientConnection{} = client) do
     Agent.update(waiting_room_pid, &List.insert_at(&1, -1, client))
-    Agent.get(waiting_room_pid, & &1) |> IO.inspect
+    Agent.get(waiting_room_pid, & &1) |> IO.inspect()
     :ok
   end
 
@@ -18,7 +18,6 @@ defmodule WaitingRoom do
   end
 
   def try_dequeue_pair(%WaitingRoom{} = waiting_list) do
-
     waiting_list
     |> Map.get(:waiting_room_pid)
     |> Agent.get(&Enum.count(&1))
@@ -27,7 +26,6 @@ defmodule WaitingRoom do
       do: {:ok, {dequeue(waiting_list), dequeue(waiting_list)}},
       else: {:not_enough_clients}
     )
-
   end
 
   def get_all_clients(%WaitingRoom{waiting_room_pid: waiting_room_pid}) do
@@ -35,11 +33,13 @@ defmodule WaitingRoom do
   end
 
   def remove_all_clients(%WaitingRoom{waiting_room_pid: waiting_room_pid}) do
-    Agent.get_and_update(waiting_room_pid, & {&1, []})
+    Agent.get_and_update(waiting_room_pid, &{&1, []})
   end
 
   def remove_client(%WaitingRoom{waiting_room_pid: waiting_room_pid}, client_pid) do
-    Agent.update(waiting_room_pid, &Enum.filter(&1, fn client -> Map.get(client, :pid) != client_pid end))
+    Agent.update(
+      waiting_room_pid,
+      &Enum.filter(&1, fn client -> Map.get(client, :pid) != client_pid end)
+    )
   end
-
 end

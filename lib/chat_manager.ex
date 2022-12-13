@@ -16,7 +16,11 @@ defmodule ChatManager do
     |> WaitingRoom.remove_client(client_pid)
   end
 
-  defp remove_from_all_structures(%ClientConnection{} = client, %ChatManager{acl: acl, shuffler: shuffler, waiting_room: waiting_room}, client_pid) do
+  defp remove_from_all_structures(
+         %ClientConnection{} = client,
+         %ChatManager{acl: acl, shuffler: shuffler, waiting_room: waiting_room},
+         client_pid
+       ) do
     # Remove client from Shuffler
     pair_pid = Shuffler.get_client_pair(shuffler, client_pid)
     Shuffler.remove_client(shuffler, client_pid)
@@ -32,7 +36,10 @@ defmodule ChatManager do
     |> WaitingRoom.queue(pair_client)
   end
 
-  def move_client_into_waiting_room(%ChatManager{waiting_room: waiting_room} = chat_manager, %ClientConnection{} = client) do
+  def move_client_into_waiting_room(
+        %ChatManager{waiting_room: waiting_room} = chat_manager,
+        %ClientConnection{} = client
+      ) do
     # Move client to the waiting room
     WaitingRoom.queue(waiting_room, client)
 
@@ -41,10 +48,12 @@ defmodule ChatManager do
       {:ok, clients} -> connect_two_clients(chat_manager, clients)
       {:not_enough_clients} -> :ok
     end
-
   end
 
-  defp connect_two_clients(%ChatManager{acl: acl, shuffler: shuffler}, {%ClientConnection{} = cli_x, %ClientConnection{} = cli_y}) do
+  defp connect_two_clients(
+         %ChatManager{acl: acl, shuffler: shuffler},
+         {%ClientConnection{} = cli_x, %ClientConnection{} = cli_y}
+       ) do
     # Move clients to ActiveClients list
     ActiveClients.add_client(acl, cli_x)
     ActiveClients.add_client(acl, cli_y)
@@ -60,14 +69,18 @@ defmodule ChatManager do
     :ok
   end
 
-  def try_send_message_to_pair(%ChatManager{acl: acl, shuffler: shuffler}, %ClientConnection{pid: client_pid} = client, message) do
+  def try_send_message_to_pair(
+        %ChatManager{acl: acl, shuffler: shuffler},
+        %ClientConnection{pid: client_pid} = client,
+        message
+      ) do
     # Get pair pid
     maybe_pair_pid = Shuffler.get_client_pair(shuffler, client_pid)
     send_message(acl, maybe_pair_pid, message |> Message.with_nickname(client))
   end
 
   defp send_message(%ActiveClients{}, pid, _message) when is_nil(pid) do
-    {:error, Message.client_is_not_chatting}
+    {:error, Message.client_is_not_chatting()}
   end
 
   defp send_message(%ActiveClients{} = acl, pid, message) do
@@ -78,10 +91,12 @@ defmodule ChatManager do
     {:ok, :done}
   end
 
-  def shuffle_clients(%ChatManager{acl: acl, shuffler: shuffler, waiting_room: waiting_room} = chat_manager) do
+  def shuffle_clients(
+        %ChatManager{acl: acl, shuffler: shuffler, waiting_room: waiting_room} = chat_manager
+      ) do
     # Move clients from waiting room to active clients
     waiting_room
-    |> WaitingRoom.remove_all_clients
+    |> WaitingRoom.remove_all_clients()
     |> Enum.each(&ActiveClients.add_client(acl, &1))
 
     # Obtain active clients
@@ -89,6 +104,7 @@ defmodule ChatManager do
 
     # Shuffle
     notify_shuffling(client_list)
+
     Shuffler.shuffle(shuffler, client_list)
     |> if_there_is_one_left_then_move_to_waiting_list(chat_manager)
 
@@ -102,6 +118,7 @@ defmodule ChatManager do
 
   defp notify_shuffling(client_list) do
     IO.puts("IT'S SHUFFLE TIMEEEEEEE")
+
     for client_socket <- Enum.map(client_list, &Map.get(&1, :socket)) do
       :gen_tcp.send(client_socket, Message.time_to_shuffle())
     end
@@ -109,14 +126,19 @@ defmodule ChatManager do
 
   defp notify_pair_nickname(%ChatManager{acl: acl, shuffler: shuffler}) do
     shuffler
-    |> Shuffler.get_all_pairs
-    |> Enum.map(fn {pid_cli, pid_pair} -> {ActiveClients.get_client(acl, pid_cli), ActiveClients.get_client(acl, pid_pair)} end)
+    |> Shuffler.get_all_pairs()
+    |> Enum.map(fn {pid_cli, pid_pair} ->
+      {ActiveClients.get_client(acl, pid_cli), ActiveClients.get_client(acl, pid_pair)}
+    end)
     |> Enum.each(fn {client, pair} ->
-                      client |> ClientConnection.send_message(Message.say_hi_to(pair))
-                  end)
+      client |> ClientConnection.send_message(Message.say_hi_to(pair))
+    end)
   end
 
-  defp if_there_is_one_left_then_move_to_waiting_list({:one_left, client_pid}, %ChatManager{acl: acl, waiting_room: waiting_room}) do
+  defp if_there_is_one_left_then_move_to_waiting_list({:one_left, client_pid}, %ChatManager{
+         acl: acl,
+         waiting_room: waiting_room
+       }) do
     # Notify client that nobody wants to chat with him/her xD
     acl
     |> ActiveClients.get_client(client_pid)

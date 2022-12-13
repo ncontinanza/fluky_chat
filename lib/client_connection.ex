@@ -14,16 +14,21 @@ defmodule ClientConnection do
   def serve(%ClientConnection{} = client, %ChatManager{} = chat_manager, %Timer{} = timer) do
     ClientConnection.send_message(client, Message.inform_looking_for_clients())
     my_pid = self()
+
     client
     |> Map.put(:pid, my_pid)
     |> receive_msg(chat_manager, timer)
   end
 
-  defp receive_msg(%ClientConnection{pid: my_pid, socket: socket} = client, %ChatManager{} = chat_manager, %Timer{} = timer) do
+  defp receive_msg(
+         %ClientConnection{pid: my_pid, socket: socket} = client,
+         %ChatManager{} = chat_manager,
+         %Timer{} = timer
+       ) do
     case :gen_tcp.recv(socket, 0) do
       {:ok, data} ->
         data
-        |> Decoder.decode_message
+        |> Decoder.decode_message()
         |> Command.execute(chat_manager, client, timer)
         |> receive_msg(chat_manager, timer)
 

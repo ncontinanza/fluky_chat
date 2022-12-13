@@ -23,10 +23,13 @@ defmodule Shuffler do
   end
 
   defp do_shuffle(pid_set, %Shuffler{} = shuffler, old_list) do
-
     case Enum.count(pid_set) do
-      0 -> {:ok, nil}
-      1 -> {:one_left, pid_set |> Enum.at(0)}
+      0 ->
+        {:ok, nil}
+
+      1 ->
+        {:one_left, pid_set |> Enum.at(0)}
+
       _ ->
         [pid_x, pid_y] = Enum.take_random(pid_set, 2)
         Shuffler.update(shuffler, pid_x, pid_y)
@@ -36,7 +39,6 @@ defmodule Shuffler do
         |> MapSet.delete(pid_y)
         |> do_shuffle(shuffler, old_list)
     end
-
   end
 
   def update(%Shuffler{shuffler_pid: shuffler_pid}, pid_x, pid_y) do
@@ -58,5 +60,4 @@ defmodule Shuffler do
   def get_all_pairs(%Shuffler{shuffler_pid: shuffler_pid}) do
     Agent.get(shuffler_pid, & &1)
   end
-
 end

@@ -1,7 +1,6 @@
 defmodule Message do
-
   def with_pid(message, %ClientConnection{pid: pid}) do
-    "<#{inspect pid}>: #{message}" <> "\n"
+    "<#{inspect(pid)}>: #{message}" <> "\n"
   end
 
   def with_nickname(message, %ClientConnection{nickname: nil} = client) do
@@ -29,13 +28,13 @@ defmodule Message do
   end
 
   def help do
-       help_message("COMMANDS LIST:")
-    <> help_message(":h -> Displays this")
-    <> help_message(":t -> Displays the remaining time until the chat shuffler")
-    <> help_message(":m [message] -> Sends a message")
-    <> help_message(":n [new_nick] -> Updates your nickname to [new_nick]")
-    <> help_message("To disconnect -> Ctrl+C")
-    <> "\n"
+    help_message("COMMANDS LIST:") <>
+      help_message(":h -> Displays this") <>
+      help_message(":t -> Displays the remaining time until the chat shuffler") <>
+      help_message(":m [message] -> Sends a message") <>
+      help_message(":n [new_nick] -> Updates your nickname to [new_nick]") <>
+      help_message("To disconnect -> Ctrl+C") <>
+      "\n"
   end
 
   def client_is_not_chatting do
@@ -54,7 +53,7 @@ defmodule Message do
   end
 
   def say_hi_to(%ClientConnection{nickname: nil, pid: pid}) do
-    "Say something nice to #{inspect pid}!"
+    "Say something nice to #{inspect(pid)}!"
     |> info_message
   end
 
@@ -69,7 +68,7 @@ defmodule Message do
   end
 
   def unknown_command(cmd, args) do
-    "Couldn't recognize command '#{Atom.to_string cmd}' with arguments '#{args}'"
+    "Couldn't recognize command '#{Atom.to_string(cmd)}' with arguments '#{args}'"
     |> error_message
   end
 
@@ -88,11 +87,11 @@ defmodule Message do
 
     time
     |> Time.add(remaining_seconds)
-    |> Time.to_string
+    |> Time.to_string()
   end
 
   def client_has_left_the_room(%ClientConnection{nickname: nil, pid: pid}) do
-    "#{inspect pid} has left the room! Looking for other users..."
+    "#{inspect(pid)} has left the room! Looking for other users..."
     |> info_message
   end
 
@@ -105,5 +104,4 @@ defmodule Message do
     "Looking for users to start chatting!"
     |> info_message
   end
-
 end
